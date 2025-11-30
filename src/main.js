@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen } = require('electron');
 const path = require('path');
 const Store = require('electron-store').default;
 
@@ -18,10 +18,11 @@ let tray = null;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 420,
-    height: 380,
+    height: 400,
     resizable: false,
     frame: false,
     transparent: true,
+    backgroundColor: '#00000000',
     alwaysOnTop: true,
     skipTaskbar: true,
     show: false,
@@ -132,10 +133,28 @@ function showWindow() {
   // Position window near tray
   const windowBounds = mainWindow.getBounds();
   const trayBounds = tray.getBounds();
+  const display = screen.getDisplayMatching(trayBounds);
+  const workArea = display.workArea;
+  const padding = 10; // Padding from screen edges
 
   // Calculate position (appears above the tray icon)
-  const x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2));
-  const y = Math.round(trayBounds.y - windowBounds.height - 10);
+  let x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2));
+  let y = Math.round(trayBounds.y - windowBounds.height - padding);
+
+  // Ensure window doesn't go past the right edge of the screen
+  if (x + windowBounds.width > workArea.x + workArea.width - padding) {
+    x = workArea.x + workArea.width - windowBounds.width - padding;
+  }
+
+  // Ensure window doesn't go past the left edge of the screen
+  if (x < workArea.x + padding) {
+    x = workArea.x + padding;
+  }
+
+  // Ensure window doesn't go above the top of the screen
+  if (y < workArea.y + padding) {
+    y = workArea.y + padding;
+  }
 
   mainWindow.setPosition(x, y);
   mainWindow.show();
