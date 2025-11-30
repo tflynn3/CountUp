@@ -1,10 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0099cc;stop-opacity:1" />
+    <!-- Background gradient for rounded rectangle -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e2a4a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <!-- Cyan circle gradient -->
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#5eead4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#22d3d8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+    </linearGradient>
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Arrow gradient -->
+    <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0f2fe;stop-opacity:1" />
     </linearGradient>
   </defs>
-  <circle cx="128" cy="128" r="120" fill="url(#grad)"/>
-  <text x="128" y="145" font-family="Arial, sans-serif" font-size="80" font-weight="bold" text-anchor="middle" fill="#1a1a2e">↑</text>
+  
+  <!-- Dark navy rounded rectangle background -->
+  <rect x="20" y="20" width="472" height="472" rx="80" ry="80" fill="url(#bgGrad)"/>
+  
+  <!-- Cyan gradient circle with glow -->
+  <circle cx="256" cy="256" r="160" fill="url(#circleGrad)" filter="url(#glow)"/>
+  
+  <!-- Upward arrow -->
+  <g fill="url(#arrowGrad)">
+    <!-- Arrow head (chevron) -->
+    <path d="M256 140 L320 210 L300 230 L256 180 L212 230 L192 210 Z" />
+    <!-- Arrow stem -->
+    <rect x="236" y="180" width="40" height="140" rx="20" ry="20" />
+  </g>
 </svg>
