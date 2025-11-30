@@ -1,7 +1,7 @@
 {
   "name": "countup",
   "version": "1.0.0",
-  "description": "A stylish Windows taskbar app that counts up time from when you started - persists through reboots",
+  "description": "A stylish cross-platform system tray/menu bar app that counts up time from when you started - persists through reboots",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
@@ -70,7 +70,10 @@
         }
       ],
       "icon": "assets/icon.png",
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "extendInfo": {
+        "LSUIElement": true
+      }
     },
     "linux": {
       "target": [
