@@ -19,7 +19,10 @@
     "taskbar",
     "tray"
   ],
-  "author": "",
+  "author": {
+    "name": "CountUp Team",
+    "email": "noreply@countup.app"
+  },
   "license": "Apache-2.0",
   "dependencies": {
     "electron-store": "^11.0.2"
