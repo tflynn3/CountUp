@@ -384,7 +384,7 @@
       <div class="since-text">since</div>
       <div class="event-name-container">
         <span class="event-name" id="eventName" title="Click to edit">I started tracking</span>
-        <input type="text" class="event-input" id="eventInput" style="display: none;" placeholder="Enter event name...">
+        <input type="text" class="event-input" id="eventInput" style="display: none;" placeholder="Enter event name..." maxlength="100">
       </div>
     </div>
 
@@ -556,9 +556,15 @@
     }
 
     async function saveEventName() {
-      const newName = eventInputEl.value.trim() || 'I started tracking';
+      // Validate and sanitize input (max 100 chars, escape HTML)
+      let newName = eventInputEl.value.trim().slice(0, 100) || 'I started tracking';
+      // Basic HTML escaping for display safety
+      newName = newName.replace(/[<>&"']/g, (c) => {
+        const escapes = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' };
+        return escapes[c];
+      });
       eventName = newName;
-      eventNameEl.textContent = newName;
+      eventNameEl.textContent = newName; // textContent is safe from XSS
       eventNameEl.style.display = 'inline';
       eventInputEl.style.display = 'none';
       await api.setEventName(newName);

@@ -193,7 +193,13 @@ ipcMain.handle('get-event-name', () => {
 });
 
 ipcMain.handle('set-event-name', (event, name) => {
-  store.set('eventName', name);
+  // Validate and sanitize input
+  if (typeof name !== 'string') {
+    return false;
+  }
+  // Limit to 100 characters and trim
+  const sanitizedName = name.trim().slice(0, 100);
+  store.set('eventName', sanitizedName || 'I started tracking');
   return true;
 });
 
@@ -206,28 +212,42 @@ ipcMain.handle('get-stats', () => {
   const now = Date.now();
   const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
   
+  // Helper function for consistent date formatting (YYYY-MM-DD)
+  const formatDateKey = (timestamp) => {
+    const d = new Date(timestamp);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  };
+  
+  // Helper for display date format
+  const formatDisplayDate = (timestamp) => {
+    const d = new Date(timestamp);
+    return d.toLocaleDateString();
+  };
+  
   // Filter to last 7 days
   const weekResets = resetHistory.filter(r => r.timestamp > sevenDaysAgo);
   
-  // Group by day
+  // Group by day using consistent date keys
   const dailyStats = {};
+  const dateDisplayMap = {};
   for (let i = 0; i < 7; i++) {
-    const date = new Date(now - (i * 24 * 60 * 60 * 1000));
-    const dateKey = date.toLocaleDateString();
+    const timestamp = now - (i * 24 * 60 * 60 * 1000);
+    const dateKey = formatDateKey(timestamp);
     dailyStats[dateKey] = { count: 0, totalDuration: 0 };
+    dateDisplayMap[dateKey] = formatDisplayDate(timestamp);
   }
   
   weekResets.forEach(reset => {
-    const dateKey = new Date(reset.timestamp).toLocaleDateString();
+    const dateKey = formatDateKey(reset.timestamp);
     if (dailyStats[dateKey]) {
       dailyStats[dateKey].count++;
       dailyStats[dateKey].totalDuration += reset.duration;
     }
   });
   
-  // Calculate averages
-  const stats = Object.entries(dailyStats).map(([date, data]) => ({
-    date,
+  // Calculate averages and use display dates for output
+  const stats = Object.entries(dailyStats).map(([dateKey, data]) => ({
+    date: dateDisplayMap[dateKey],
     resets: data.count,
     avgDuration: data.count > 0 ? Math.round(data.totalDuration / data.count) : 0
   })).reverse();
