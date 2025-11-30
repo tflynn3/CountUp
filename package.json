@@ -7,6 +7,9 @@
     "start": "electron .",
     "build": "electron-builder",
     "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder -mwl",
     "test": "echo \"No tests specified\" && exit 0"
   },
   "keywords": [
@@ -33,13 +36,52 @@
     "directories": {
       "output": "dist"
     },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ],
     "win": {
-      "target": "nsis",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
       "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "Utility"
     }
   }
 }

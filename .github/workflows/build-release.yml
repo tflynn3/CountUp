@@ -1,0 +1,153 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: false
+        default: 'v1.0.0'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows
+        run: npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            dist/*.exe
+            dist/*.msi
+          retention-days: 30
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS
+        run: npm run build:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: |
+            dist/*.dmg
+            dist/*.zip
+          retention-days: 30
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux
+        run: npm run build:linux
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+          retention-days: 30
+
+  create-release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f -name "*"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          name: CountUp ${{ github.event.inputs.version || github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/windows-build/*
+            artifacts/macos-build/*
+            artifacts/linux-build/*
+          body: |
+            ## CountUp ${{ github.event.inputs.version || github.ref_name }}
+            
+            A stylish system tray app that counts up time - perfect for tracking "It's been X time since Y".
+            
+            ### Downloads
+            
+            **Windows:**
+            - `.exe` - NSIS Installer (recommended)
+            - Portable `.exe` - No installation required
+            
+            **macOS:**
+            - `.dmg` - Disk image installer
+            
+            **Linux:**
+            - `.AppImage` - Portable application
+            - `.deb` - Debian/Ubuntu package
+            
+            ### Features
+            - 🕐 Track elapsed time in years, months, days, hours, minutes, seconds
+            - 💾 Persists through reboots
+            - 🎨 Stylish dark theme UI
+            - 📌 Lives in system tray
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
