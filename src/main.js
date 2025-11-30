@@ -48,7 +48,7 @@ function createWindow() {
 }
 
 function createTray() {
-  // Create a simple tray icon using nativeImage
+  // Create tray icon - use template image for macOS menu bar
   const iconPath = path.join(__dirname, '..', 'assets', 'icon.png');
   let trayIcon;
   
@@ -57,6 +57,13 @@ function createTray() {
     if (trayIcon.isEmpty()) {
       // Create a simple colored icon if file doesn't exist
       trayIcon = createDefaultIcon();
+    } else {
+      // Resize for tray (16x16 is standard for menu bar on macOS, 16-32 for Windows)
+      trayIcon = trayIcon.resize({ width: 16, height: 16 });
+      // On macOS, set as template image for proper dark/light mode support
+      if (process.platform === 'darwin') {
+        trayIcon.setTemplateImage(true);
+      }
     }
   } catch (error) {
     trayIcon = createDefaultIcon();
@@ -137,9 +144,17 @@ function showWindow() {
   const workArea = display.workArea;
   const padding = 10; // Padding from screen edges
 
-  // Calculate position (appears above the tray icon)
+  // Calculate position - platform-specific positioning
   let x = Math.round(trayBounds.x + (trayBounds.width / 2) - (windowBounds.width / 2));
-  let y = Math.round(trayBounds.y - windowBounds.height - padding);
+  let y;
+  
+  if (process.platform === 'darwin') {
+    // macOS: menu bar is at the top, so window appears below the tray icon
+    y = Math.round(trayBounds.y + trayBounds.height + padding);
+  } else {
+    // Windows/Linux: taskbar is typically at the bottom, so window appears above the tray icon
+    y = Math.round(trayBounds.y - windowBounds.height - padding);
+  }
 
   // Ensure window doesn't go past the right edge of the screen
   if (x + windowBounds.width > workArea.x + workArea.width - padding) {
@@ -154,6 +169,11 @@ function showWindow() {
   // Ensure window doesn't go above the top of the screen
   if (y < workArea.y + padding) {
     y = workArea.y + padding;
+  }
+  
+  // Ensure window doesn't go past the bottom of the screen
+  if (y + windowBounds.height > workArea.y + workArea.height - padding) {
+    y = workArea.y + workArea.height - windowBounds.height - padding;
   }
 
   mainWindow.setPosition(x, y);
@@ -276,6 +296,11 @@ ipcMain.handle('get-stats', () => {
 
 // App lifecycle
 app.whenReady().then(() => {
+  // On macOS, hide from dock to make it a true menu bar app
+  if (process.platform === 'darwin') {
+    app.dock.hide();
+  }
+  
   createWindow();
   createTray();
 
