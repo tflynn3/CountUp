@@ -6,7 +6,9 @@ const Store = require('electron-store').default;
 const store = new Store({
   defaults: {
     startTime: null,
-    isRunning: false
+    isRunning: false,
+    eventName: 'I started tracking',
+    resetHistory: [] // Array of { timestamp, duration } objects
   }
 });
 
@@ -15,8 +17,8 @@ let tray = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 400,
-    height: 300,
+    width: 420,
+    height: 380,
     resizable: false,
     frame: false,
     transparent: true,
@@ -148,6 +150,21 @@ function startCounter() {
 }
 
 function resetCounter() {
+  // Record the reset in history before clearing
+  const startTime = store.get('startTime');
+  if (startTime) {
+    const duration = Date.now() - startTime;
+    const resetHistory = store.get('resetHistory') || [];
+    resetHistory.push({
+      timestamp: Date.now(),
+      duration: duration
+    });
+    // Keep only last 30 days of history
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const filteredHistory = resetHistory.filter(r => r.timestamp > thirtyDaysAgo);
+    store.set('resetHistory', filteredHistory);
+  }
+  
   store.set('startTime', null);
   store.set('isRunning', false);
 }
@@ -169,6 +186,53 @@ ipcMain.handle('start-counter', () => {
 ipcMain.handle('reset-counter', () => {
   resetCounter();
   return true;
+});
+
+ipcMain.handle('get-event-name', () => {
+  return store.get('eventName');
+});
+
+ipcMain.handle('set-event-name', (event, name) => {
+  store.set('eventName', name);
+  return true;
+});
+
+ipcMain.handle('get-reset-history', () => {
+  return store.get('resetHistory') || [];
+});
+
+ipcMain.handle('get-stats', () => {
+  const resetHistory = store.get('resetHistory') || [];
+  const now = Date.now();
+  const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
+  
+  // Filter to last 7 days
+  const weekResets = resetHistory.filter(r => r.timestamp > sevenDaysAgo);
+  
+  // Group by day
+  const dailyStats = {};
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(now - (i * 24 * 60 * 60 * 1000));
+    const dateKey = date.toLocaleDateString();
+    dailyStats[dateKey] = { count: 0, totalDuration: 0 };
+  }
+  
+  weekResets.forEach(reset => {
+    const dateKey = new Date(reset.timestamp).toLocaleDateString();
+    if (dailyStats[dateKey]) {
+      dailyStats[dateKey].count++;
+      dailyStats[dateKey].totalDuration += reset.duration;
+    }
+  });
+  
+  // Calculate averages
+  const stats = Object.entries(dailyStats).map(([date, data]) => ({
+    date,
+    resets: data.count,
+    avgDuration: data.count > 0 ? Math.round(data.totalDuration / data.count) : 0
+  })).reverse();
+  
+  return stats;
 });
 
 // App lifecycle

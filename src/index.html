@@ -15,8 +15,8 @@
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       color: #fff;
-      height: 300px;
-      width: 400px;
+      height: 380px;
+      width: 420px;
       border-radius: 16px;
       overflow: hidden;
       user-select: none;
@@ -32,15 +32,97 @@
 
     .header {
       text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .header h1 {
-      font-size: 1.4em;
+      font-size: 1.1em;
       font-weight: 300;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       color: #e94560;
       text-transform: uppercase;
+    }
+
+    .stats-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: #fff;
+      font-size: 0.75em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      -webkit-app-region: no-drag;
+    }
+
+    .stats-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .event-section {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .its-been {
+      font-size: 0.9em;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 4px;
+    }
+
+    .event-name-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    .event-name {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #00d9ff;
+      text-shadow: 0 0 15px rgba(0, 217, 255, 0.4);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+      max-width: 280px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .event-name:hover {
+      background: rgba(0, 217, 255, 0.1);
+    }
+
+    .event-input {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #00d9ff;
+      background: rgba(0, 217, 255, 0.1);
+      border: 1px solid rgba(0, 217, 255, 0.3);
+      border-radius: 6px;
+      padding: 4px 8px;
+      text-align: center;
+      width: 280px;
+      outline: none;
+    }
+
+    .event-input:focus {
+      border-color: #00d9ff;
+      box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+    }
+
+    .edit-icon {
+      font-size: 0.8em;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
     }
 
     .timer-display {
@@ -54,22 +136,22 @@
     .time-row {
       display: flex;
       justify-content: center;
-      gap: 8px;
-      margin-bottom: 10px;
+      gap: 6px;
+      margin-bottom: 8px;
     }
 
     .time-unit {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 10px;
-      padding: 12px 10px;
-      min-width: 55px;
+      padding: 10px 8px;
+      min-width: 52px;
       text-align: center;
       backdrop-filter: blur(10px);
     }
 
     .time-value {
-      font-size: 1.6em;
+      font-size: 1.5em;
       font-weight: 700;
       color: #00d9ff;
       font-variant-numeric: tabular-nums;
@@ -77,18 +159,25 @@
     }
 
     .time-label {
-      font-size: 0.65em;
+      font-size: 0.6em;
       color: rgba(255, 255, 255, 0.6);
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-top: 4px;
+      margin-top: 3px;
+    }
+
+    .since-text {
+      text-align: center;
+      font-size: 0.75em;
+      color: rgba(255, 255, 255, 0.5);
+      margin: 8px 0;
     }
 
     .status {
       text-align: center;
       font-size: 0.75em;
       color: rgba(255, 255, 255, 0.5);
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
 
     .status.running {
@@ -144,13 +233,6 @@
       transform: scale(0.98);
     }
 
-    .started-date {
-      text-align: center;
-      font-size: 0.7em;
-      color: rgba(255, 255, 255, 0.4);
-      margin-top: 10px;
-    }
-
     /* Pulse animation for running status */
     @keyframes pulse {
       0%, 100% { opacity: 1; }
@@ -162,14 +244,111 @@
       margin-right: 5px;
       animation: pulse 1.5s infinite;
     }
+
+    /* Stats Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      -webkit-app-region: no-drag;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 16px;
+      padding: 20px;
+      width: 380px;
+      max-height: 340px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.1em;
+      font-weight: 500;
+      color: #e94560;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.5em;
+      cursor: pointer;
+      padding: 0 5px;
+    }
+
+    .close-btn:hover {
+      color: #fff;
+    }
+
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .stats-table th {
+      text-align: left;
+      padding: 8px;
+      font-size: 0.75em;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stats-table td {
+      padding: 10px 8px;
+      font-size: 0.85em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stats-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .stat-value {
+      color: #00d9ff;
+      font-weight: 600;
+    }
+
+    .no-stats {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      padding: 30px;
+      font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>⏱ CountUp</h1>
+      <button class="stats-btn" id="statsBtn">📊 Stats</button>
     </div>
     
+    <div class="event-section">
+      <div class="its-been">It's been</div>
+    </div>
+
     <div class="timer-display">
       <div class="time-row">
         <div class="time-unit">
@@ -201,14 +380,43 @@
       </div>
     </div>
 
+    <div class="event-section">
+      <div class="since-text">since</div>
+      <div class="event-name-container">
+        <span class="event-name" id="eventName" title="Click to edit">I started tracking</span>
+        <input type="text" class="event-input" id="eventInput" style="display: none;" placeholder="Enter event name...">
+      </div>
+    </div>
+
     <div class="status" id="status">Not Started</div>
     
     <div class="controls">
       <button class="btn btn-start" id="startBtn">Start</button>
       <button class="btn btn-reset" id="resetBtn">Reset</button>
     </div>
+  </div>
 
-    <div class="started-date" id="startedDate"></div>
+  <!-- Stats Modal -->
+  <div class="modal-overlay" id="statsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>📊 Weekly Stats</h2>
+        <button class="close-btn" id="closeStats">&times;</button>
+      </div>
+      <div id="statsContent">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Resets</th>
+              <th>Avg Time</th>
+            </tr>
+          </thead>
+          <tbody id="statsBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -218,6 +426,7 @@
     let startTime = null;
     let isRunning = false;
     let updateInterval = null;
+    let eventName = 'I started tracking';
 
     // DOM elements
     const yearsEl = document.getElementById('years');
@@ -227,13 +436,16 @@
     const minutesEl = document.getElementById('minutes');
     const secondsEl = document.getElementById('seconds');
     const statusEl = document.getElementById('status');
-    const startedDateEl = document.getElementById('startedDate');
     const startBtn = document.getElementById('startBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const eventNameEl = document.getElementById('eventName');
+    const eventInputEl = document.getElementById('eventInput');
+    const statsBtn = document.getElementById('statsBtn');
+    const statsModal = document.getElementById('statsModal');
+    const closeStatsBtn = document.getElementById('closeStats');
+    const statsBody = document.getElementById('statsBody');
 
     // Calculate elapsed time with proper year/month handling
-    // This provides human-readable time differences (e.g., "1 year, 3 months, 5 days")
-    // rather than raw milliseconds converted to fixed time units
     function calculateElapsedTime(startTimestamp) {
       const start = new Date(startTimestamp);
       const now = new Date();
@@ -245,39 +457,30 @@
       let minutes = now.getMinutes() - start.getMinutes();
       let seconds = now.getSeconds() - start.getSeconds();
 
-      // Handle negative seconds
-      if (seconds < 0) {
-        seconds += 60;
-        minutes--;
-      }
-
-      // Handle negative minutes
-      if (minutes < 0) {
-        minutes += 60;
-        hours--;
-      }
-
-      // Handle negative hours
-      if (hours < 0) {
-        hours += 24;
-        days--;
-      }
-
-      // Handle negative days
+      if (seconds < 0) { seconds += 60; minutes--; }
+      if (minutes < 0) { minutes += 60; hours--; }
+      if (hours < 0) { hours += 24; days--; }
       if (days < 0) {
-        // Get the number of days in the previous month
         const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
         days += prevMonth.getDate();
         months--;
       }
-
-      // Handle negative months
-      if (months < 0) {
-        months += 12;
-        years--;
-      }
+      if (months < 0) { months += 12; years--; }
 
       return { years, months, days, hours, minutes, seconds };
+    }
+
+    // Format duration in milliseconds to readable string
+    function formatDuration(ms) {
+      if (ms === 0) return '-';
+      const hours = Math.floor(ms / (1000 * 60 * 60));
+      const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+      if (hours > 24) {
+        const days = Math.floor(hours / 24);
+        return `${days}d ${hours % 24}h`;
+      }
+      if (hours > 0) return `${hours}h ${minutes}m`;
+      return `${minutes}m`;
     }
 
     // Update the display
@@ -308,14 +511,10 @@
         statusEl.textContent = 'Counting...';
         statusEl.className = 'status running';
         startBtn.style.display = 'none';
-        
-        const startDate = new Date(startTime);
-        startedDateEl.textContent = `Started: ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString()}`;
       } else {
         statusEl.textContent = 'Not Started';
         statusEl.className = 'status stopped';
         startBtn.style.display = 'inline-block';
-        startedDateEl.textContent = '';
       }
     }
 
@@ -342,17 +541,61 @@
 
     // Start the update loop
     function startUpdateLoop() {
-      if (updateInterval) {
-        clearInterval(updateInterval);
-      }
+      if (updateInterval) clearInterval(updateInterval);
       updateDisplay();
       updateInterval = setInterval(updateDisplay, 1000);
+    }
+
+    // Event name editing
+    function startEditingEventName() {
+      eventNameEl.style.display = 'none';
+      eventInputEl.style.display = 'block';
+      eventInputEl.value = eventName;
+      eventInputEl.focus();
+      eventInputEl.select();
+    }
+
+    async function saveEventName() {
+      const newName = eventInputEl.value.trim() || 'I started tracking';
+      eventName = newName;
+      eventNameEl.textContent = newName;
+      eventNameEl.style.display = 'inline';
+      eventInputEl.style.display = 'none';
+      await api.setEventName(newName);
+    }
+
+    // Stats modal
+    async function showStats() {
+      const stats = await api.getStats();
+      statsBody.innerHTML = '';
+      
+      if (stats.length === 0 || stats.every(s => s.resets === 0)) {
+        statsBody.innerHTML = '<tr><td colspan="3" class="no-stats">No reset data yet. Start tracking to see stats!</td></tr>';
+      } else {
+        stats.forEach(stat => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${stat.date}</td>
+            <td class="stat-value">${stat.resets}</td>
+            <td class="stat-value">${formatDuration(stat.avgDuration)}</td>
+          `;
+          statsBody.appendChild(row);
+        });
+      }
+      
+      statsModal.classList.add('show');
+    }
+
+    function hideStats() {
+      statsModal.classList.remove('show');
     }
 
     // Initialize
     async function init() {
       startTime = await api.getStartTime();
       isRunning = await api.getIsRunning();
+      eventName = await api.getEventName() || 'I started tracking';
+      eventNameEl.textContent = eventName;
       
       updateStatus();
       
@@ -366,8 +609,22 @@
     // Event listeners
     startBtn.addEventListener('click', startCounter);
     resetBtn.addEventListener('click', resetCounter);
+    eventNameEl.addEventListener('click', startEditingEventName);
+    eventInputEl.addEventListener('blur', saveEventName);
+    eventInputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveEventName();
+      if (e.key === 'Escape') {
+        eventInputEl.value = eventName;
+        saveEventName();
+      }
+    });
+    statsBtn.addEventListener('click', showStats);
+    closeStatsBtn.addEventListener('click', hideStats);
+    statsModal.addEventListener('click', (e) => {
+      if (e.target === statsModal) hideStats();
+    });
 
-    // Listen for IPC messages from main process (tray menu actions)
+    // Listen for IPC messages from main process
     api.onCounterStarted(async () => {
       startTime = await api.getStartTime();
       isRunning = true;
