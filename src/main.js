@@ -59,7 +59,7 @@ function createTray() {
       if (trayIcon.isEmpty()) {
         trayIcon = createDefaultIcon();
       } else {
-        // macOS menu bar icons should be 16x16 or 18x18
+        // macOS menu bar icons are typically 18x18 for better visibility
         trayIcon = trayIcon.resize({ width: 18, height: 18 });
         trayIcon.setTemplateImage(true);
       }
@@ -74,7 +74,7 @@ function createTray() {
       if (trayIcon.isEmpty()) {
         trayIcon = createDefaultIcon();
       } else {
-        // Resize for tray (16-32 for Windows/Linux)
+        // Resize for tray (16x16 is standard for Windows/Linux system tray)
         trayIcon = trayIcon.resize({ width: 16, height: 16 });
       }
     } catch (error) {
