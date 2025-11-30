@@ -17,14 +17,18 @@
       color: #fff;
       height: 380px;
       width: 420px;
-      border-radius: 16px;
+      border-radius: 24px;
       overflow: hidden;
       user-select: none;
       -webkit-app-region: drag;
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
     .container {
-      padding: 20px;
+      padding: 20px 20px 24px 20px;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -148,6 +152,9 @@
       min-width: 52px;
       text-align: center;
       backdrop-filter: blur(10px);
+      box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
     .time-value {
@@ -193,6 +200,8 @@
       gap: 10px;
       justify-content: center;
       -webkit-app-region: no-drag;
+      margin-top: auto;
+      padding-top: 8px;
     }
 
     .btn {
@@ -205,6 +214,7 @@
       transition: all 0.3s ease;
       text-transform: uppercase;
       letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .btn-start {
