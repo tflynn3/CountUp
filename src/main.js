@@ -49,24 +49,37 @@ function createWindow() {
 
 function createTray() {
   // Create tray icon - use template image for macOS menu bar
-  const iconPath = path.join(__dirname, '..', 'assets', 'icon.png');
   let trayIcon;
   
-  try {
-    trayIcon = nativeImage.createFromPath(iconPath);
-    if (trayIcon.isEmpty()) {
-      // Create a simple colored icon if file doesn't exist
-      trayIcon = createDefaultIcon();
-    } else {
-      // Resize for tray (16x16 is standard for menu bar on macOS, 16-32 for Windows)
-      trayIcon = trayIcon.resize({ width: 16, height: 16 });
-      // On macOS, set as template image for proper dark/light mode support
-      if (process.platform === 'darwin') {
+  if (process.platform === 'darwin') {
+    // On macOS, use the template icon for menu bar (proper dark/light mode support)
+    const templateIconPath = path.join(__dirname, '..', 'assets', 'iconTemplate.png');
+    try {
+      trayIcon = nativeImage.createFromPath(templateIconPath);
+      if (trayIcon.isEmpty()) {
+        trayIcon = createDefaultIcon();
+      } else {
+        // macOS menu bar icons should be 16x16 or 18x18
+        trayIcon = trayIcon.resize({ width: 18, height: 18 });
         trayIcon.setTemplateImage(true);
       }
+    } catch (error) {
+      trayIcon = createDefaultIcon();
     }
-  } catch (error) {
-    trayIcon = createDefaultIcon();
+  } else {
+    // On Windows/Linux, use the regular colored icon
+    const iconPath = path.join(__dirname, '..', 'assets', 'icon.png');
+    try {
+      trayIcon = nativeImage.createFromPath(iconPath);
+      if (trayIcon.isEmpty()) {
+        trayIcon = createDefaultIcon();
+      } else {
+        // Resize for tray (16-32 for Windows/Linux)
+        trayIcon = trayIcon.resize({ width: 16, height: 16 });
+      }
+    } catch (error) {
+      trayIcon = createDefaultIcon();
+    }
   }
 
   tray = new Tray(trayIcon);
@@ -105,11 +118,23 @@ function createTray() {
     }
   ]);
 
-  tray.setContextMenu(contextMenu);
-
-  tray.on('click', () => {
-    toggleWindow();
-  });
+  // On macOS, only show context menu on right-click
+  // Left-click should toggle the window
+  if (process.platform === 'darwin') {
+    tray.on('click', () => {
+      toggleWindow();
+    });
+    tray.on('right-click', () => {
+      tray.popUpContextMenu(contextMenu);
+    });
+  } else {
+    // On Windows/Linux, set the context menu normally (shows on right-click)
+    // and toggle window on left-click
+    tray.setContextMenu(contextMenu);
+    tray.on('click', () => {
+      toggleWindow();
+    });
+  }
 }
 
 function createDefaultIcon() {
