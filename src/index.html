@@ -212,7 +212,8 @@
   </div>
 
   <script>
-    const { ipcRenderer } = require('electron');
+    // Use the secure contextBridge API exposed by preload.js
+    const api = window.countupAPI;
 
     let startTime = null;
     let isRunning = false;
@@ -231,6 +232,8 @@
     const resetBtn = document.getElementById('resetBtn');
 
     // Calculate elapsed time with proper year/month handling
+    // This provides human-readable time differences (e.g., "1 year, 3 months, 5 days")
+    // rather than raw milliseconds converted to fixed time units
     function calculateElapsedTime(startTimestamp) {
       const start = new Date(startTimestamp);
       const now = new Date();
@@ -318,7 +321,7 @@
 
     // Start the counter
     async function startCounter() {
-      startTime = await ipcRenderer.invoke('start-counter');
+      startTime = await api.startCounter();
       isRunning = true;
       updateStatus();
       startUpdateLoop();
@@ -326,7 +329,7 @@
 
     // Reset the counter
     async function resetCounter() {
-      await ipcRenderer.invoke('reset-counter');
+      await api.resetCounter();
       startTime = null;
       isRunning = false;
       updateStatus();
@@ -348,8 +351,8 @@
 
     // Initialize
     async function init() {
-      startTime = await ipcRenderer.invoke('get-start-time');
-      isRunning = await ipcRenderer.invoke('get-is-running');
+      startTime = await api.getStartTime();
+      isRunning = await api.getIsRunning();
       
       updateStatus();
       
@@ -365,14 +368,14 @@
     resetBtn.addEventListener('click', resetCounter);
 
     // Listen for IPC messages from main process (tray menu actions)
-    ipcRenderer.on('counter-started', async () => {
-      startTime = await ipcRenderer.invoke('get-start-time');
+    api.onCounterStarted(async () => {
+      startTime = await api.getStartTime();
       isRunning = true;
       updateStatus();
       startUpdateLoop();
     });
 
-    ipcRenderer.on('counter-reset', () => {
+    api.onCounterReset(() => {
       startTime = null;
       isRunning = false;
       updateStatus();
