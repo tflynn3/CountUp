@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CountUp</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: #fff;
+      height: 300px;
+      width: 400px;
+      border-radius: 16px;
+      overflow: hidden;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    .container {
+      padding: 20px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .header h1 {
+      font-size: 1.4em;
+      font-weight: 300;
+      letter-spacing: 3px;
+      color: #e94560;
+      text-transform: uppercase;
+    }
+
+    .timer-display {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .time-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .time-unit {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 12px 10px;
+      min-width: 55px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .time-value {
+      font-size: 1.6em;
+      font-weight: 700;
+      color: #00d9ff;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+    }
+
+    .time-label {
+      font-size: 0.65em;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    .status {
+      text-align: center;
+      font-size: 0.75em;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 15px;
+    }
+
+    .status.running {
+      color: #00ff88;
+    }
+
+    .status.stopped {
+      color: #ff6b6b;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      -webkit-app-region: no-drag;
+    }
+
+    .btn {
+      padding: 10px 25px;
+      border: none;
+      border-radius: 25px;
+      font-size: 0.85em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
+      color: #000;
+    }
+
+    .btn-start:hover {
+      background: linear-gradient(135deg, #33e0ff 0%, #00b3e6 100%);
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+    }
+
+    .btn-reset {
+      background: linear-gradient(135deg, #e94560 0%, #cc3355 100%);
+      color: #fff;
+    }
+
+    .btn-reset:hover {
+      background: linear-gradient(135deg, #ff5577 0%, #e94560 100%);
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(233, 69, 96, 0.4);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .started-date {
+      text-align: center;
+      font-size: 0.7em;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 10px;
+    }
+
+    /* Pulse animation for running status */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status.running::before {
+      content: '●';
+      margin-right: 5px;
+      animation: pulse 1.5s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⏱ CountUp</h1>
+    </div>
+    
+    <div class="timer-display">
+      <div class="time-row">
+        <div class="time-unit">
+          <div class="time-value" id="years">0</div>
+          <div class="time-label">Years</div>
+        </div>
+        <div class="time-unit">
+          <div class="time-value" id="months">0</div>
+          <div class="time-label">Months</div>
+        </div>
+        <div class="time-unit">
+          <div class="time-value" id="days">0</div>
+          <div class="time-label">Days</div>
+        </div>
+      </div>
+      <div class="time-row">
+        <div class="time-unit">
+          <div class="time-value" id="hours">00</div>
+          <div class="time-label">Hours</div>
+        </div>
+        <div class="time-unit">
+          <div class="time-value" id="minutes">00</div>
+          <div class="time-label">Min</div>
+        </div>
+        <div class="time-unit">
+          <div class="time-value" id="seconds">00</div>
+          <div class="time-label">Sec</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status" id="status">Not Started</div>
+    
+    <div class="controls">
+      <button class="btn btn-start" id="startBtn">Start</button>
+      <button class="btn btn-reset" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="started-date" id="startedDate"></div>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    let startTime = null;
+    let isRunning = false;
+    let updateInterval = null;
+
+    // DOM elements
+    const yearsEl = document.getElementById('years');
+    const monthsEl = document.getElementById('months');
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    const statusEl = document.getElementById('status');
+    const startedDateEl = document.getElementById('startedDate');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Calculate elapsed time with proper year/month handling
+    function calculateElapsedTime(startTimestamp) {
+      const start = new Date(startTimestamp);
+      const now = new Date();
+      
+      let years = now.getFullYear() - start.getFullYear();
+      let months = now.getMonth() - start.getMonth();
+      let days = now.getDate() - start.getDate();
+      let hours = now.getHours() - start.getHours();
+      let minutes = now.getMinutes() - start.getMinutes();
+      let seconds = now.getSeconds() - start.getSeconds();
+
+      // Handle negative seconds
+      if (seconds < 0) {
+        seconds += 60;
+        minutes--;
+      }
+
+      // Handle negative minutes
+      if (minutes < 0) {
+        minutes += 60;
+        hours--;
+      }
+
+      // Handle negative hours
+      if (hours < 0) {
+        hours += 24;
+        days--;
+      }
+
+      // Handle negative days
+      if (days < 0) {
+        // Get the number of days in the previous month
+        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+        days += prevMonth.getDate();
+        months--;
+      }
+
+      // Handle negative months
+      if (months < 0) {
+        months += 12;
+        years--;
+      }
+
+      return { years, months, days, hours, minutes, seconds };
+    }
+
+    // Update the display
+    function updateDisplay() {
+      if (!startTime) {
+        yearsEl.textContent = '0';
+        monthsEl.textContent = '0';
+        daysEl.textContent = '0';
+        hoursEl.textContent = '00';
+        minutesEl.textContent = '00';
+        secondsEl.textContent = '00';
+        return;
+      }
+
+      const elapsed = calculateElapsedTime(startTime);
+      
+      yearsEl.textContent = elapsed.years;
+      monthsEl.textContent = elapsed.months;
+      daysEl.textContent = elapsed.days;
+      hoursEl.textContent = String(elapsed.hours).padStart(2, '0');
+      minutesEl.textContent = String(elapsed.minutes).padStart(2, '0');
+      secondsEl.textContent = String(elapsed.seconds).padStart(2, '0');
+    }
+
+    // Update status display
+    function updateStatus() {
+      if (isRunning && startTime) {
+        statusEl.textContent = 'Counting...';
+        statusEl.className = 'status running';
+        startBtn.style.display = 'none';
+        
+        const startDate = new Date(startTime);
+        startedDateEl.textContent = `Started: ${startDate.toLocaleDateString()} at ${startDate.toLocaleTimeString()}`;
+      } else {
+        statusEl.textContent = 'Not Started';
+        statusEl.className = 'status stopped';
+        startBtn.style.display = 'inline-block';
+        startedDateEl.textContent = '';
+      }
+    }
+
+    // Start the counter
+    async function startCounter() {
+      startTime = await ipcRenderer.invoke('start-counter');
+      isRunning = true;
+      updateStatus();
+      startUpdateLoop();
+    }
+
+    // Reset the counter
+    async function resetCounter() {
+      await ipcRenderer.invoke('reset-counter');
+      startTime = null;
+      isRunning = false;
+      updateStatus();
+      updateDisplay();
+      if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+      }
+    }
+
+    // Start the update loop
+    function startUpdateLoop() {
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+      updateDisplay();
+      updateInterval = setInterval(updateDisplay, 1000);
+    }
+
+    // Initialize
+    async function init() {
+      startTime = await ipcRenderer.invoke('get-start-time');
+      isRunning = await ipcRenderer.invoke('get-is-running');
+      
+      updateStatus();
+      
+      if (isRunning && startTime) {
+        startUpdateLoop();
+      } else {
+        updateDisplay();
+      }
+    }
+
+    // Event listeners
+    startBtn.addEventListener('click', startCounter);
+    resetBtn.addEventListener('click', resetCounter);
+
+    // Listen for IPC messages from main process (tray menu actions)
+    ipcRenderer.on('counter-started', async () => {
+      startTime = await ipcRenderer.invoke('get-start-time');
+      isRunning = true;
+      updateStatus();
+      startUpdateLoop();
+    });
+
+    ipcRenderer.on('counter-reset', () => {
+      startTime = null;
+      isRunning = false;
+      updateStatus();
+      updateDisplay();
+      if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+      }
+    });
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
